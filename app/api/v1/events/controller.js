@@ -1,17 +1,17 @@
 const {
-  queryAllTalents,
-  getAllTalentsByBody,
-  getOneTalents,
-  updateTalents,
-  createTalents,
-  deleteTalents,
-} = require("../../../services/mongoose/talents");
+  queryAllEvents,
+  findAllEventsByBody,
+  getOneEvents,
+  createEvents,
+  updateEvents,
+  deleteEvents,
+} = require("../../../services/mongoose/events");
 
 const { StatusCodes } = require("http-status-codes");
 
 const create = async (req, res, next) => {
   try {
-    const result = await createTalents(req);
+    const result = await createEvents(req);
 
     res.status(StatusCodes.CREATED).json({
       status: StatusCodes.CREATED,
@@ -25,7 +25,7 @@ const create = async (req, res, next) => {
 
 const index = async (req, res, next) => {
   try {
-    const result = await queryAllTalents(req);
+    const result = await queryAllEvents(req);
 
     res.status(StatusCodes.OK).json({
       status: StatusCodes.OK,
@@ -37,9 +37,9 @@ const index = async (req, res, next) => {
   }
 };
 
-const findByBody = async (req, res, next) => {
+const indexByBody = async (req, res, next) => {
   try {
-    const result = await getAllTalentsByBody(req);
+    const result = await findAllEventsByBody(req);
 
     res.status(StatusCodes.OK).json({
       status: StatusCodes.OK,
@@ -53,7 +53,7 @@ const findByBody = async (req, res, next) => {
 
 const find = async (req, res, next) => {
   try {
-    const result = await getOneTalents(req);
+    const result = await getOneEvents(req);
 
     res.status(StatusCodes.OK).json({
       status: StatusCodes.OK,
@@ -67,7 +67,7 @@ const find = async (req, res, next) => {
 
 const update = async (req, res, next) => {
   try {
-    const result = await updateTalents(req);
+    const result = await updateEvents(req);
 
     res.status(StatusCodes.OK).json({
       status: StatusCodes.OK,
@@ -81,7 +81,7 @@ const update = async (req, res, next) => {
 
 const destroy = async (req, res, next) => {
   try {
-    const result = await deleteTalents(req);
+    const result = await deleteEvents(req);
 
     res.status(StatusCodes.OK).json({
       status: StatusCodes.OK,
@@ -95,9 +95,9 @@ const destroy = async (req, res, next) => {
 
 module.exports = {
   index,
-  findByBody,
+  indexByBody,
   find,
-  create,
   update,
   destroy,
+  create,
 };

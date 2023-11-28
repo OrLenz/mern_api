@@ -1,9 +1,32 @@
 const Talents = require("../../api/v1/talents/model");
-const { checkingImage } = require("./image");
+const { checkingImage } = require("./images");
 
 const { NotFoundError, BadRequestError } = require("../../errors");
 
-const getAllTalents = async (req) => {
+const queryAllTalents = async (req) => {
+  const { name, role } = req.query;
+
+  let condition = {};
+
+  if (name) {
+    condition = { ...condition, name: { $regex: name, $options: "i" } };
+  }
+
+  if (role) {
+    condition = { ...condition, role: { $regex: role, $options: "i" } };
+  }
+
+  const result = await Talents.find(condition)
+    .populate({
+      path: "image",
+      select: "_id urlImage",
+    })
+    .select("_id name role image");
+
+  return result;
+};
+
+const getAllTalentsByBody = async (req) => {
   const { name, role } = req.query;
 
   let condition = {};
@@ -75,20 +98,25 @@ const updateTalents = async (req) => {
 
   await checkingImage(image);
 
-  const check = await Talents.findOne({
+  const checkId = await Talents.findOne({
+    name,
+    _id: id,
+  });
+
+  if (!checkId) throw new NotFoundError(`id: ${id} tidak ditemukan`);
+
+  const checkName = await Talents.findOne({
     name,
     _id: { $ne: id },
   });
 
-  if (check) throw new BadRequestError("data sudah ada di db");
+  if (checkName) throw new BadRequestError("data sudah ada di db");
 
   const result = await Talents.findOneAndUpdate(
     { _id: id },
     { name, image, role },
     { new: true, runValidators: true }
   );
-
-  if (!result) throw new NotFoundError(`id: ${id} tidak ditemukan`);
 
   return result;
 };
@@ -114,7 +142,8 @@ const checkingTalents = async (id) => {
 };
 
 module.exports = {
-  getAllTalents,
+  queryAllTalents,
+  getAllTalentsByBody,
   createTalents,
   getOneTalents,
   updateTalents,

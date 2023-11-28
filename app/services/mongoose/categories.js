@@ -37,21 +37,25 @@ const updateCategories = async (req) => {
   const { id } = req.params;
   const { name } = req.body;
 
-  //Validasi data duplikat
-  const check = await Categories.findOne({
+  //Validasi id tidak ditemukan
+  const checkId = await Categories.findOne({
+    name,
+    _id: id,
+  });
+  if (!checkId) throw new NotFoundError(`id : ${id} tidak ditemukan`);
+
+  //Validasi data sudah ada di id lain
+  const checkName = await Categories.findOne({
     name,
     _id: { $ne: id },
   });
-  if (check) throw new BadRequestError("data sudah ada di db");
+  if (checkName) throw new BadRequestError("data sudah ada di db");
 
   const result = await Categories.findOneAndUpdate(
     { _id: id },
     { name },
     { new: true, runValidators: true }
   );
-
-  //Validasi id tidak ditemukan
-  if (!result) throw new NotFoundError(`id : ${id} tidak ditemukan`);
 
   return result;
 };
@@ -70,10 +74,19 @@ const deleteCategories = async (req) => {
   return result;
 };
 
+const checkingCategories = async (id) => {
+  const result = await Categories.findOne({ _id: id });
+
+  if (!result) throw new NotFoundError(`id: ${id} tidak ditemukan`);
+
+  return result;
+};
+
 module.exports = {
   getAllCategories,
   createCategories,
   getOneCategories,
   updateCategories,
   deleteCategories,
+  checkingCategories,
 };
